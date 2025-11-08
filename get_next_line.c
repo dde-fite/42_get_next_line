@@ -5,112 +5,67 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dde-fite <dde-fite@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/03 20:50:08 by dde-fite          #+#    #+#             */
-/*   Updated: 2025/11/07 22:05:35 by dde-fite         ###   ########.fr       */
+/*   Created: 2025/11/08 19:27:13 by dde-fite          #+#    #+#             */
+/*   Updated: 2025/11/08 22:52:18 by dde-fite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_saved_line(t_list **lst)
+const char	*bcktrim(const char *s)
 {
-	t_list	*_lst;
-	char	*str;
-
-	_lst = *lst;
-	str = ft_strndup((*lst)->content, ft_strlen(lst->content) - 1);
-	if (!str)
-		return (NULL);
-	*lst = (*lst)->content;
-	ft_lstdelone(_lst, free);
-	return (str);
+	s += ft_strlen(s);
+	while (*s == '\n')
+		s--;
+	return (s);
 }
 
-char	*finished_file(t_list *lst)
+int	extract_file(int fd, char **global)
 {
-	char	*str;
-	size_t	str_len;
+	char			buf[BUFFER_SIZE];
+	char			*_tmp;
+	ssize_t			n;
+	const size_t	len_global = ft_strlen(*global);
 
-	if (lst)
-	{
-		str_len = ft_strlen(lst->content);
-		if (lst->content[str_len] == '\n')
-			str_len--;
-		str = ft_strndup(lst->content, ft_strlen(lst->content));
-		if (!str)
-			return (NULL);
-		ft_lstclear(&lst, free);
-		return (str);
-	}
-	return (NULL);
+	n = read(fd, buf, BUFFER_SIZE);
+	if (n <= 0)
+		return (-1);
+	_tmp = ft_strndup(*global, len_global + n);
+	if (!_tmp)
+		return (-1);
+	ft_strlcpy(_tmp + len_global, buf, n + 1);
+	free(*global);
+	*global = _tmp;
+	return (0);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_list	*acc_lst;
-	t_list			*_lst;
-	char			*buf;
-	char			*_buf;
-	char			*rtrn;
-	char			*str;
+	static char	*global;
+	char		*_tmp;
+	char		*rtrn;
 
-	if (acc_lst && ft_strchr(acc_lst->content, '\n'))
-		return (get_saved_line(&acc_lst));
-	buf = malloc(BUFFER_SIZE);
-	if (!buf)
-		return (NULL);
-	while (read(fd, buf, BUFFER_SIZE))
+	if (!global)
 	{
-		while (*buf)
-		{
-			_buf = ft_strchr(buf, '\n');
-			if (_buf)
-				rtrn = ft_strndup(buf, _buf + 1 - buf);
-			else
-				rtrn = ft_strdup(buf);
-			if (!rtrn)
-				return (NULL);
-			if (!acc_lst)
-			{
-				_lst = ft_lstnew(rtrn);
-				if (!_lst)
-				{
-					free(rtrn);
-					return (NULL);
-				}
-				acc_lst = _lst;
-			}
-			else if (ft_strchr(ft_lstlast(acc_lst)->content, '\n'))
-			{
-				_lst = ft_lstnew(rtrn);
-				if (!_lst)
-				{
-					free(rtrn);
-					return (NULL);
-				}
-				ft_lstadd_back(&acc_lst, _lst);
-			}
-			else
-			{
-				_lst = ft_lstlast(acc_lst);
-				str = ft_strjoin(_lst->content, rtrn);
-				if (!str)
-				{
-					free(rtrn);
-					return (NULL);
-				}
-				_lst->content = str;
-				free(rtrn);
-			}
-			if (_buf)
-				buf = _buf + 1;
-			else
-				break ;
-		}
-		if (acc_lst && ft_strchr(acc_lst->content, '\n'))
-			return (get_saved_line(&acc_lst));
+		global = ft_strndup("", 1);
+		if (!global)
+			return (NULL);
 	}
-	return (finished_file(acc_lst));
+	_tmp = ft_strchr(global, '\n');
+	while (!_tmp && !extract_file(fd, &global))
+		_tmp = ft_strchr(global, '\n');
+	rtrn = ft_strndup(global, _tmp - global);
+	if (!rtrn)
+		return (NULL);
+	_tmp = ft_substr(global, _tmp - global + 1, ft_strlen(_tmp) - 1);
+	if (!_tmp)
+	{
+		free(rtrn);
+		return (NULL);
+	}
+	free(global);
+	global = _tmp;
+	return (rtrn);
 }
 
 #include <fcntl.h>
@@ -122,7 +77,9 @@ int	main(void)
 	int		fd;
 
 	fd = open("tests/test1.txt", O_RDONLY);
-	i = 4;
-	printf("%s\n", get_next_line(fd));
+	for(int i = 0; i <= 500; i++)
+	{
+		printf("%s\n", get_next_line(fd));
+	}
 	close(fd);
 }
