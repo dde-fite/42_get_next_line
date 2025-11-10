@@ -6,7 +6,7 @@
 /*   By: dde-fite <dde-fite@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/08 19:27:13 by dde-fite          #+#    #+#             */
-/*   Updated: 2025/11/10 20:47:12 by dde-fite         ###   ########.fr       */
+/*   Updated: 2025/11/10 21:01:22 by dde-fite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,14 @@
 
 int	extract_file(int fd, char **global)
 {
-	char			buf[BUFFER_SIZE + 1];
+	char			*buf;
 	char			*_tmp;
 	ssize_t			n;
 	const size_t	len_global = ft_strlen(*global);
 
+	buf = malloc(BUFFER_SIZE + 1);
+	if (!buf)
+		return (-1);
 	n = read(fd, buf, BUFFER_SIZE);
 	if (n <= 0)
 		return (-1);
@@ -35,6 +38,7 @@ int	extract_file(int fd, char **global)
 	ft_strlcpy(_tmp + len_global, buf, n + 1);
 	free(*global);
 	*global = _tmp;
+	free (buf);
 	return (0);
 }
 
@@ -45,29 +49,26 @@ char	*eof_management(char **global)
 	if (!*global)
 		return (NULL);
 	str = ft_strndup(*global, ft_strlen(*global));
-	if (!str)
-		return (NULL);
 	free(*global);
 	*global = NULL;
+	if (!str)
+		return (NULL);
 	return (str);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*global;
-	char		*_tmp;
+	const char	*_tmp = NULL;
 	char		*rtrn;
 
 	if (global)
 		_tmp = ft_strchr(global, '\n');
-	else
-		_tmp = NULL;
 	while (!_tmp)
 	{
-		if (!extract_file(fd, &global))
-			_tmp = ft_strchr(global, '\n');
-		else
+		if (extract_file(fd, &global))
 			return (eof_management(&global));
+		_tmp = ft_strchr(global, '\n');
 	}
 	rtrn = ft_strndup(global, _tmp - global + 1);
 	if (!rtrn)
@@ -79,7 +80,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	}
 	free(global);
-	global = _tmp;
+	global = (char *)_tmp;
 	return (rtrn);
 }
 
