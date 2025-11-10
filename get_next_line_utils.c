@@ -6,7 +6,7 @@
 /*   By: dde-fite <dde-fite@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 20:50:05 by dde-fite          #+#    #+#             */
-/*   Updated: 2025/11/10 17:18:05 by dde-fite         ###   ########.fr       */
+/*   Updated: 2025/11/10 19:09:09 by dde-fite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,12 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-char	*ft_strndup(const char *s, size_t len)
+char	*ft_strndup(const char *s, ssize_t len)
 {
-	char			*str;
+	char	*str;
 
+	if (len < 0)
+		return (NULL);
 	str = malloc((len + 1) * sizeof(char));
 	if (!str)
 		return (NULL);
@@ -40,6 +42,8 @@ size_t	ft_strlen(const char *s)
 {
 	const char	*_s = s;
 
+	if (!s)
+		return (0);
 	while (*_s)
 		_s++;
 	return (_s - s);
