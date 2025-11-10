@@ -6,7 +6,7 @@
 /*   By: dde-fite <dde-fite@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 20:50:05 by dde-fite          #+#    #+#             */
-/*   Updated: 2025/11/08 22:10:35 by dde-fite         ###   ########.fr       */
+/*   Updated: 2025/11/10 17:18:05 by dde-fite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,15 +61,13 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	size_t const	s_len = ft_strlen(s);
+	size_t			min_size;
 
 	if (start >= s_len)
 		return (ft_strndup("", 1));
-	return (ft_strndup(s + start, ft_minsize(s_len - start, len)));
-}
-
-size_t	ft_minsize(size_t n1, size_t n2)
-{
-	if (n1 < n2)
-		return (n1);
-	return (n2);
+	if (s_len - start < len)
+		min_size = s_len - start;
+	else
+		min_size = len;
+	return (ft_strndup(s + start, min_size));
 }
