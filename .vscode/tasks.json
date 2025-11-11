@@ -8,7 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "-D",
-                "BUFFER_SIZE=10000000",
+                "BUFFER_SIZE=10",
                 "${workspaceFolder}/*.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
