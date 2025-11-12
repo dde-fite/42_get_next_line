@@ -6,7 +6,7 @@
 /*   By: dde-fite <dde-fite@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/08 19:27:13 by dde-fite          #+#    #+#             */
-/*   Updated: 2025/11/11 21:41:05 by dde-fite         ###   ########.fr       */
+/*   Updated: 2025/11/12 18:10:46 by dde-fite         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,11 @@ static char	*eof_management(char **global, ssize_t n)
 	char	*str;
 
 	if (n < 0)
-		return (free(*global), NULL);
+	{
+		free(*global);
+		*global = NULL;
+		return (NULL);
+	}
 	if (!*global)
 		return (NULL);
 	if (!**global)
@@ -95,29 +99,29 @@ char	*get_next_line(int fd)
 	return (rtrn);
 }
 
-#include <fcntl.h>
-#include <stdio.h>
+// #include <fcntl.h>
+// #include <stdio.h>
 
-int	main(void)
-{
-	int		fd;
-	char	*gnl;
+// int	main(void)
+// {
+// 	int		fd;
+// 	char	*gnl;
 
-	fd = open("tests/read_error.txt", O_RDONLY);
-	// while (gnl)
-	for (int i = 0; i<20; i++)
-	{
-		if (i == 2)
-		{
-			gnl = get_next_line(5);
-			close(fd);
-			fd = open("tests/read_error.txt", O_RDONLY);
-		}
-		else
-			gnl = get_next_line(fd);
-		printf(" %s", gnl);
-		free(gnl);
-	}
-	close(fd);
-	return (0);
-}
+// 	fd = open("tests/read_error.txt", O_RDONLY);
+// 	// while (gnl)
+// 	for (int i = 0; i<20; i++)
+// 	{
+// 		if (i == 2)
+// 		{
+// 			gnl = get_next_line(5);
+// 			close(fd);
+// 			fd = open("tests/read_error.txt", O_RDONLY);
+// 		}
+// 		else
+// 			gnl = get_next_line(fd);
+// 		printf(" %s", gnl);
+// 		free(gnl);
+// 	}
+// 	close(fd);
+// 	return (0);
+// }
